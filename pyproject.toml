@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "nyc-taxi-automated-reports"
+version = "0.1.0"
+description = ""
+authors = ["Aleksei Shevelev <shevelsm@gmail.com>"]
+readme = "README.md"
+packages = [{include = "nyc_taxi_automated_reports"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "^0.100.1"
+uvicorn = "^0.23.1"
+pydantic-settings = "^2.0.2"
+pandas = "^2.0.3"
+pyarrow = "^12.0.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
