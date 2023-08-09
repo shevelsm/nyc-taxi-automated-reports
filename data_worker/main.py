@@ -3,8 +3,8 @@ from fastapi import FastAPI
 from .config import settings
 from .taxi_data import TaxiData
 
+
 app = FastAPI()
-URL_PATTERN = str(settings.url_pattern)
 
 
 @app.get("/")
@@ -12,16 +12,23 @@ async def root():
     return {"app": settings.app_name}
 
 
-@app.get("/report/{month}")
-async def report(month: str):
-    report_data = TaxiData(URL_PATTERN, month)
-    count = report_data.from_source()
-    return {"count": count}
-
-
 @app.get("/info")
 async def info():
     return {
         "app_name": settings.app_name,
-        "url_pattern": settings.url_pattern,
+        "yellow_taxi_url_pattern": settings.yellow_taxi_url_pattern,
+        "yellow_taxi_zone_lookup": settings.yellow_taxi_zone_lookup,
     }
+
+
+@app.get("/report/{month}")
+async def report(month: str):
+    report_data = TaxiData(
+        settings.yellow_taxi_url_pattern,
+        settings.yellow_taxi_zone_lookup,
+        settings.yellow_taxi_s3_path,
+        settings.bucket_name,
+        month,
+    )
+    report_data._collect_from_source()
+    return {"dtypes": report_data.s3_url}
