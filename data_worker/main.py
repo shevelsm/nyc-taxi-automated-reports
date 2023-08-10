@@ -30,5 +30,5 @@ async def report(month: str):
         settings.bucket_name,
         month,
     )
-    report_data._collect_from_source()
+    report_data.put_to_s3()
     return {"dtypes": report_data.s3_url}
