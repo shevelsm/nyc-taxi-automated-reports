@@ -4,9 +4,11 @@ from urllib.parse import urlparse
 
 import boto3
 import pandas as pd
+import pyarrow.parquet as pq
 
 session = boto3.session.Session()
 s3 = session.client(service_name="s3", endpoint_url="https://storage.yandexcloud.net")
+s3_resource = boto3.resource(service_name="s3", endpoint_url="https://storage.yandexcloud.net")
 
 
 class TaxiData:
@@ -48,3 +50,24 @@ class TaxiData:
         s3.put_object(
             Bucket=self.bucket_name, Key=self.s3_url, Body=out_buffer.getvalue()
         )
+
+    def is_on_s3(self) -> bool:
+        for key in s3.list_objects(Bucket=self.bucket_name)['Contents']:
+            if key['Key'] == self.s3_url:
+                return True
+        return False
+
+    def get_from_s3(self) -> pd.DataFrame:
+        buffer = BytesIO()
+        object = s3_resource.Object(self.bucket_name, self.s3_url)
+        object.download_fileobj(buffer)
+        df = pq.read_table(buffer)
+        return df
+
+
+'''
+[
+    {'Key': 'yellow_taxi_data/2023-02.parquet', 'LastModified': datetime.datetime(2023, 8, 10, 17, 59, 15, 16000, tzinfo=tzutc()), 'ETag': '"86db835a94dc54610eb89a97e11c9b63"', 'Size': 62777664, ...}, 
+    {'Key': 'yellow_taxi_data/2023-03.parquet', 'LastModified': datetime.datetime(2023, 8, 10, 7, 19, 56, 477000, tzinfo=tzutc()), 'ETag': '"03024534399fa16629b9aa46987b5397"', 'Size': 73764685, ...}
+]
+'''

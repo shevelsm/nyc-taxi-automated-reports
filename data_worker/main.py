@@ -30,5 +30,5 @@ async def report(month: str):
         settings.bucket_name,
         month,
     )
-    report_data.put_to_s3()
-    return {"dtypes": report_data.s3_url}
+    df = report_data.get_from_s3()
+    return {"response": report_data.is_on_s3(), "shape": df.shape}
