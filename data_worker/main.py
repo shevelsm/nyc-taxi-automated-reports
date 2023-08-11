@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 
 from .config import settings
+from .s3_storage import get_df_from_s3_parquet, is_on_s3, put_df_to_s3_parquet
 from .taxi_data import TaxiData
-
 
 app = FastAPI()
 
@@ -27,8 +27,12 @@ async def report(month: str):
         settings.yellow_taxi_url_pattern,
         settings.yellow_taxi_zone_lookup,
         settings.yellow_taxi_s3_path,
-        settings.bucket_name,
         month,
     )
-    df = report_data.get_from_s3()
-    return {"response": report_data.is_on_s3(), "shape": df.shape}
+    if is_on_s3(settings.bucket_name, report_data.s3_url):
+        df = get_df_from_s3_parquet(settings.bucket_name, report_data.s3_url)
+    else:
+        df = report_data.collect_from_source()
+        put_df_to_s3_parquet(df, settings.bucket_name, report_data.s3_url)
+
+    return {"shape": df.shape}
