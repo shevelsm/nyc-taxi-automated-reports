@@ -19,7 +19,7 @@ class TaxiData:
     def __repr__(self) -> str:
         return f"TaxiData ({self.source_url}, {self.lookup_table_url}, {self.count})"
 
-    def collect_from_source(self) -> pd.DataFrame:
+    def __prepare_taxi_df(self) -> None:
         source_data = pd.read_parquet(self.source_url)
         lookup_table = pd.read_csv(self.lookup_table_url)
         self.taxi_df = source_data.merge(
@@ -34,6 +34,10 @@ class TaxiData:
             right_on="LocationID",
             suffixes=("_PU", "_DU"),
         )
+        self.taxi_df = add_weekday_col(self.taxi_df, 'tpep_pickup_datetime')
+
+    def collect_from_source(self) -> pd.DataFrame:
+        self.__prepare_taxi_df()
         self.count = self.taxi_df.shape[0]
         return self.taxi_df
 
@@ -49,3 +53,8 @@ class TaxiData:
         ]
         self.jfk_count = self.jfk_df.shape[0]
         return self.jfk_df
+
+
+def add_weekday_col(df: pd.DataFrame, ts_col_name: str) -> pd.DataFrame:
+    df['weekday'] = df[ts_col_name].dt.dayofweek
+    return df

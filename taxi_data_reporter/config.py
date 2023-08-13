@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    app_name: str = "NYC Taxi Data Worker"
+    app_name: str = "NYC Taxi Data Reporter"
     readme: str = "https://github.com/shevelsm/nyc-taxi-automated-reports/blob/master/README.md"
     data_dict_url: str = "https://www.nyc.gov/assets/tlc/downloads/pdf/data_dictionary_trip_records_yellow.pdf"
     yellow_taxi_url_pattern: str = "https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_{}.parquet"
