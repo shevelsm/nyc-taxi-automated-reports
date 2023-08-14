@@ -1,6 +1,4 @@
 import pandas as pd
-import matplotlib as plt
-import seaborn as sns
 
 from .s3_storage import get_df_from_s3_parquet
 
@@ -39,6 +37,9 @@ class TaxiData:
         self.taxi_df["pickup_weekday"] = self.taxi_df[
             "tpep_pickup_datetime"
         ].dt.dayofweek
+        self.taxi_df["pickup_hour"] = self.taxi_df[
+            "tpep_pickup_datetime"
+        ].dt.hour
 
     def collect_from_source(self) -> pd.DataFrame:
         self.__prepare_taxi_df()
@@ -57,23 +58,3 @@ class TaxiData:
         ]
         self.jfk_count = self.jfk_df.shape[0]
         return self.jfk_df
-
-
-def prepare_weekday_trips_figure(taxi_df: pd.DataFrame, jfk_df: pd.DataFrame):
-    days = {0: "Mo", 1: "Tu", 2: "Wed", 3: "Thu", 4: "Fri", 5: "Sat", 6: "Sun"}
-
-    counts_days_all = pd.crosstab(index=taxi_df["pickup_weekday"], columns="count")
-    counts_days_jfk = pd.crosstab(index=jfk_df["pickup_weekday"], columns="count")
-
-    df_rt_jfk = pd.DataFrame()
-    df_rt_jfk["Weekdays"] = list(days.values())
-    df_rt_jfk["Trips Ratio %"] = round(counts_days_jfk / counts_days_all, 3) * 100
-
-    fig, ax = plt.subplots(figsize=(10, 6))
-    sns.barplot(data=df_rt_jfk, x="Weekdays", y="Trips Ratio %")
-    ax.set_title("Ratio of trips starting from JFK on each weekday", fontsize=20)
-    ax.set_xlabel("Weekdays", fontsize=15)
-    ax.set_ylabel("Trips Ratio %", fontsize=15)
-    ax.bar_label(ax.containers[0])
-
-    return fig

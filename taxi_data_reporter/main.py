@@ -3,11 +3,8 @@ from fastapi.background import BackgroundTasks
 from fastapi.responses import RedirectResponse
 
 from .config import settings
-from .s3_storage import (
-    clear_s3_storage,
-    put_df_to_s3_parquet,
-    check_key_on_s3
-)
+from .reporter import make_pdf_report, prepare_hour_trips_fig, prepare_weekday_trips_fig
+from .s3_storage import check_key_on_s3, clear_s3_storage, put_df_to_s3_parquet
 from .taxi_data import TaxiData
 
 app = FastAPI()
@@ -41,7 +38,13 @@ async def make_report(month: str, background_tasks: BackgroundTasks):
         taxi_df = report_data.collect_from_s3(bucket_name)
     else:
         taxi_df = report_data.collect_from_source()
-        background_tasks.add_task(put_df_to_s3_parquet, taxi_df, bucket_name, report_data.s3_url)
+        background_tasks.add_task(
+            put_df_to_s3_parquet, taxi_df, bucket_name, report_data.s3_url
+        )
+    jfk_df = report_data.make_jfk_df()
+    prepare_weekday_trips_fig(taxi_df, jfk_df)
+    prepare_hour_trips_fig(taxi_df, jfk_df)
+    make_pdf_report()
     return {"sample": taxi_df.sample().to_dict()}
 
 
@@ -56,7 +59,9 @@ async def report_data(month: str):
     if check_key_on_s3(bucket_name, report_data.s3_url):
         return {"info": report_data}
     else:
-        return {"info": f"The report data for {month} is not prepared. Run report/{month}"}
+        return {
+            "info": f"The report data for {month} is not prepared. Run report/{month}"
+        }
 
 
 @app.get("/reports")
