@@ -53,7 +53,7 @@ async def report_data(month: str):
         settings.yellow_taxi_s3_path,
         month,
     )
-    if report_data.is_on_s3(bucket_name):
+    if check_key_on_s3(bucket_name, report_data.s3_url):
         return {"info": report_data}
     else:
         return {"info": f"The report data for {month} is not prepared. Run report/{month}"}
