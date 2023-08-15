@@ -17,11 +17,9 @@ s3_client = session.client(service_name="s3", endpoint_url="https://storage.yand
 s3_resource = boto3.resource(service_name="s3", endpoint_url="https://storage.yandexcloud.net")
 
 
-def put_df_to_s3_parquet(taxi_data_df: pd.DataFrame, bucket_name: str, key: str) -> None:
-    out_buffer = BytesIO()
-    taxi_data_df.to_parquet(out_buffer, index=False)
+def put_to_s3(obj: pd.DataFrame, bucket_name: str, key: str) -> None:
     s3_client.put_object(
-        Bucket=bucket_name, Key=key, Body=out_buffer.getvalue()
+        Bucket=bucket_name, Key=key, Body=obj.getvalue()
     )
 
 

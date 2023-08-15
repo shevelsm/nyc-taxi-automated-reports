@@ -1,3 +1,4 @@
+from io import BytesIO
 import pandas as pd
 
 from .s3_storage import get_df_from_s3_parquet
@@ -9,11 +10,13 @@ class TaxiData:
         url_pattern: dict,
         lookup_table_url: str,
         s3_url: str,
+        s3_reports: str,
         month: str,
     ) -> None:
         self.month = month
         self.source_url = url_pattern.format(self.month)
         self.s3_url = f"{s3_url}/{month}.parquet"
+        self.s3_reports = f"{s3_reports}/{month}.pdf"
         self.lookup_table_url = lookup_table_url
 
     def __repr__(self) -> str:
@@ -50,6 +53,11 @@ class TaxiData:
         self.taxi_df = get_df_from_s3_parquet(bucket_name, self.s3_url)
         self.total_count = self.taxi_df.shape[0]
         return self.taxi_df
+
+    def to_parquet(self) -> BytesIO:
+        out_buffer = BytesIO()
+        self.taxi_df.to_parquet(out_buffer, index=False)
+        return out_buffer
 
     def make_jfk_df(self) -> pd.DataFrame:
         self.jfk_df = self.taxi_df.loc[

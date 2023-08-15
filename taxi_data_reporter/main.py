@@ -4,7 +4,7 @@ from fastapi.responses import RedirectResponse
 
 from .config import settings
 from .reporter import make_pdf_report, prepare_hour_trips_fig, prepare_weekday_trips_fig
-from .s3_storage import check_key_on_s3, clear_s3_storage, put_df_to_s3_parquet
+from .s3_storage import check_key_on_s3, clear_s3_storage, put_to_s3
 from .taxi_data import TaxiData
 
 app = FastAPI()
@@ -32,19 +32,26 @@ async def make_report(month: str, background_tasks: BackgroundTasks):
         settings.yellow_taxi_url_pattern,
         settings.yellow_taxi_zone_lookup,
         settings.yellow_taxi_s3_path,
+        settings.yellow_taxi_s3_reports,
         month,
     )
+
     if check_key_on_s3(bucket_name, report_data.s3_url):
         taxi_df = report_data.collect_from_s3(bucket_name)
     else:
         taxi_df = report_data.collect_from_source()
+        parquet = report_data.to_parquet()
         background_tasks.add_task(
-            put_df_to_s3_parquet, taxi_df, bucket_name, report_data.s3_url
+            put_to_s3, parquet, bucket_name, report_data.s3_url
         )
+
     jfk_df = report_data.make_jfk_df()
     prepare_weekday_trips_fig(taxi_df, jfk_df)
     prepare_hour_trips_fig(taxi_df, jfk_df)
-    make_pdf_report()
+    pdf = make_pdf_report()
+    background_tasks.add_task(
+            put_to_s3, pdf, bucket_name, report_data.s3_url
+        )
     return {"sample": taxi_df.sample().to_dict()}
 
 
