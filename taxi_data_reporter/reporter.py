@@ -12,6 +12,7 @@ fig, ax = plt.subplots(2, 2, sharey=True, figsize=(11.7, 8.3))
 def make_pdf_report() -> BytesIO:
     pdf_buffer = BytesIO()
     plt.savefig(pdf_buffer, format="pdf", bbox_inches="tight")
+    fig.clear()
     return pdf_buffer
 
 
@@ -33,8 +34,12 @@ def prepare_weekday_trips_fig(taxi_df: pd.DataFrame, jfk_df: pd.DataFrame):
     df_rt_jfk_total["Weekdays"] = list(days.values())
     df_rt_jfk_total["Trips Ratio"] = round(counts_days_ratio_all, 3) * 100
 
-    ax[0, 0].set_title("Ratio of weekdays in the airport trips", fontsize=12, fontweight="bold")
-    ax[0, 1].set_title("Ratio of weekdays in total trips", fontsize=12, fontweight="bold")
+    ax[0, 0].set_title(
+        "Ratio of weekdays in the airport trips", fontsize=12, fontweight="bold"
+    )
+    ax[0, 1].set_title(
+        "Ratio of weekdays in total trips", fontsize=12, fontweight="bold"
+    )
 
     sns.barplot(data=df_rt_jfk, x="Weekdays", y="Trips Ratio", ax=ax[0, 0])
     sns.barplot(data=df_rt_jfk_total, x="Weekdays", y="Trips Ratio", ax=ax[0, 1])
@@ -57,8 +62,12 @@ def prepare_hour_trips_fig(taxi_df: pd.DataFrame, jfk_df: pd.DataFrame):
     sns.set_style("darkgrid")
     sns.lineplot(data=counts_hours_ratio_jfk, ax=ax[1, 0])
     sns.lineplot(data=counts_hours_ratio_all, ax=ax[1, 1])
-    ax[1, 0].set_title("Ratio of times in airport trips", fontsize=12, fontweight="bold")
-    ax[1, 1].set_title("Ratio of times in the total trips", fontsize=12, fontweight="bold")
+    ax[1, 0].set_title(
+        "Ratio of times in airport trips", fontsize=12, fontweight="bold"
+    )
+    ax[1, 1].set_title(
+        "Ratio of times in the total trips", fontsize=12, fontweight="bold"
+    )
     ax[1, 0].set_xlabel("Pick up hour")
     ax[1, 1].set_xlabel("Pick up hour")
     ax[1, 0].set_xticks(

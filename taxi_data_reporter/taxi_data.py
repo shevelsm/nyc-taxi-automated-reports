@@ -40,9 +40,7 @@ class TaxiData:
         self.taxi_df["pickup_weekday"] = self.taxi_df[
             "tpep_pickup_datetime"
         ].dt.dayofweek
-        self.taxi_df["pickup_hour"] = self.taxi_df[
-            "tpep_pickup_datetime"
-        ].dt.hour
+        self.taxi_df["pickup_hour"] = self.taxi_df["tpep_pickup_datetime"].dt.hour
 
     def collect_from_source(self) -> pd.DataFrame:
         self.__prepare_taxi_df()
