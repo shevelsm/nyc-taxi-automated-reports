@@ -75,7 +75,7 @@ async def reports():
     return {"reports": " ".join(reports)}
 
 
-@app.get("/report_data/reset")
+@app.get("/reports/reset")
 async def report_data_reset(background_tasks: BackgroundTasks):
     background_tasks.add_task(clear_s3_storage, settings.bucket_name)
     return {"message": "All report_data have been removed from s3 storage"}
