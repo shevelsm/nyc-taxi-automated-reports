@@ -1,4 +1,5 @@
 from io import BytesIO
+from typing import Sequence
 
 import boto3
 import pandas as pd
@@ -21,13 +22,9 @@ def put_to_s3(obj: BytesIO, bucket_name: str, key: str) -> None:
 
 
 def check_key_on_s3(bucket_name: str, check_key: str) -> bool:
-    try:
-        keys = s3_client.list_objects(Bucket=bucket_name)["Contents"]
-    except KeyError:
-        print("It's my fault!")
-        return False
-    for key in keys:
-        if key["Key"] == check_key:
+    bucket = s3_resource.Bucket(bucket_name)
+    for obj in bucket.objects.all():
+        if obj.key == check_key:
             return True
     return False
 
@@ -53,3 +50,12 @@ def get_s3_url(bucket_name: str, key: str) -> str:
             "Key": key,
         },
     )
+
+
+def list_objects_s3(bucket_name: str, subpath: str = None) -> Sequence[str]:
+    objects = list()
+    bucket = s3_resource.Bucket(bucket_name)
+    for obj in bucket.objects.all():
+        if obj.key.startswith(subpath):
+            objects.append(obj.key)
+    return objects
