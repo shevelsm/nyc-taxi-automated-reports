@@ -83,5 +83,6 @@ After starting a web server it's time to describe its endpoints. This is the lis
 ## Further plans
 
 - Input data validation (month, bucket_name and etc);
+- Create dev s3 container for development and test purposes, split dev and prod envs via config;
 - More tests for fastapi and s3 communications with corner cases;
 - Ability to use additional GET parametrs to configure a final report.
