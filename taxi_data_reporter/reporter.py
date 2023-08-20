@@ -12,7 +12,6 @@ fig, ax = plt.subplots(2, 2, sharey=True, figsize=(11.7, 8.3))
 def make_pdf_report() -> BytesIO:
     pdf_buffer = BytesIO()
     plt.savefig(pdf_buffer, format="pdf", bbox_inches="tight")
-    fig.clf()
     return pdf_buffer
 
 

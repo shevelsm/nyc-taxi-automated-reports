@@ -4,6 +4,8 @@
 
 It's a simple web application for creating basic analytic reports based on [TLC Trip Record Data](https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page). It shows ratio of weekdays and time between airport rides and total trips.
 
+**Just for demostration** the app was deployed on a cloud VM here - [nyc-taxi-reporter:8000/](http://51.250.121.158:8000/)
+
 Examples of the final reports:
 
 - [2020-03.pdf](https://github.com/shevelsm/nyc-taxi-automated-reports/blob/master/examples/2020-03.pdf)
